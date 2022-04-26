@@ -1,11 +1,11 @@
+import { Button, Space } from "@mantine/core";
 import React from "react";
 import {
-  createEmptyArray,
   getFlags,
   getHidden,
   getMines,
-  getRandomNumber,
-  plantMines,
+  initBoardData,
+  revealEmpty,
 } from "../utils/helpers";
 import Cell from "./Cell";
 import Timer from "./Timer";
@@ -22,140 +22,47 @@ const Board = ({ height, width, mines }: BoardProps) => {
   const [stepData, setStepData] = React.useState<any[]>([]);
   const [mineCount, setMineCount] = React.useState<number>(mines);
   const [gameStatus, setGameStatus] = React.useState("Game in progress");
+  const [openedModal, setOpenedModal] = React.useState<boolean>(false);
+  const [time, setTime] = React.useState(Date.now());
 
   React.useEffect(() => {
-    setBoardData(initBoardData(height, width, mines));
+    let initStep = initBoardData(height, width, mines);
+    setBoardData(initStep);
+    setStepData((prevState) => [...prevState, initStep]);
   }, []);
 
-  React.useEffect(() => {
-    let steps = JSON.parse(localStorage.getItem("stepHistory")!);
+  // React.useEffect(() => {
+  //   let steps = JSON.parse(localStorage.getItem("stepHistory")!);
 
-    // console.log(steps);
-    // console.log(steps.length);
-  }, [boardData]);
+  //   // console.log(steps);
+  //   // console.log(steps.length);
+  // }, [boardData]);
 
-  React.useEffect(() => {
-    setStepData([...stepData, boardData]);
-  }, [boardData]);
+  // React.useEffect(() => {
+  //   console.log(boardData);
+  //   // setStepData([...stepData, boardData]);
+  // }, [boardData]);
 
-  React.useEffect(() => {
-    localStorage.setItem("stepHistory", JSON.stringify(stepData));
-  }, [stepData]);
-
-  const initBoardData = (height: number, width: number, mines: number) => {
-    let data = createEmptyArray(height, width);
-    data = plantMines(data, height, width, mines);
-    data = getNeighbours(data, height, width);
-    // console.log(data);
-    return data;
-  };
-
-  const traverseBoard = (x: number, y: number, data: any) => {
-    const el = [];
-
-    //up
-    if (x > 0) {
-      el.push(data[x - 1][y]);
-    }
-
-    //down
-    if (x < height - 1) {
-      el.push(data[x + 1][y]);
-    }
-
-    //left
-    if (y > 0) {
-      el.push(data[x][y - 1]);
-    }
-
-    //right
-    if (y < width - 1) {
-      el.push(data[x][y + 1]);
-    }
-
-    // top left
-    if (x > 0 && y > 0) {
-      el.push(data[x - 1][y - 1]);
-    }
-
-    // top right
-    if (x > 0 && y < width - 1) {
-      el.push(data[x - 1][y + 1]);
-    }
-
-    // bottom right
-    if (x < height - 1 && y < width - 1) {
-      el.push(data[x + 1][y + 1]);
-    }
-
-    // bottom left
-    if (x < height - 1 && y > 0) {
-      el.push(data[x + 1][y - 1]);
-    }
-
-    return el;
-  };
-
-  // get number of neighbouring mines for each board cell
-  const getNeighbours = (data: any, height: number, width: number) => {
-    let updatedData = data;
-
-    for (let i = 0; i < height; i++) {
-      for (let j = 0; j < width; j++) {
-        if (data[i][j].isMine !== true) {
-          let mine = 0;
-          const area = traverseBoard(data[i][j].x, data[i][j].y, data);
-          area.map((value: any) => {
-            if (value.isMine) {
-              mine++;
-            }
-          });
-          if (mine === 0) {
-            updatedData[i][j].isEmpty = true;
-          }
-          updatedData[i][j].neighbour = mine;
-        }
-      }
-    }
-
-    return updatedData;
-  };
+  // React.useEffect(() => {
+  //   // localStorage.setItem("stepHistory", JSON.stringify(stepData));
+  //   console.log(stepData);
+  // }, [stepData]);
 
   // reveals the whole board
   const revealBoard = () => {
     let updatedData = [...boardData];
 
-    updatedData.map((datarow) => {
+    updatedData.map((datarow: any) => {
       datarow.map((dataitem: any) => {
         dataitem.isRevealed = true;
       });
     });
 
     setBoardData(updatedData);
-  };
-
-  /* reveal logic for empty cell */
-  const revealEmpty = (x: number, y: number, data: any) => {
-    let area = traverseBoard(x, y, data);
-
-    area.map((value) => {
-      if (
-        !value.isFlagged &&
-        !value.isRevealed &&
-        (value.isEmpty || !value.isMine)
-      ) {
-        data[value.x][value.y].isRevealed = true;
-        if (value.isEmpty) {
-          revealEmpty(value.x, value.y, data);
-        }
-      }
-    });
-
-    return data;
+    setStepData((prevState) => [...prevState, updatedData]);
   };
 
   // Handle User Events
-
   const handleCellClick = (x: number, y: number) => {
     // check if revealed. return if true.
     if (boardData[x][y].isRevealed || boardData[x][y].isFlagged) return null;
@@ -167,12 +74,12 @@ const Board = ({ height, width, mines }: BoardProps) => {
       alert("game over");
     }
 
-    let updatedData = [...boardData];
+    let updatedData = JSON.parse(JSON.stringify(boardData));
     updatedData[x][y].isFlagged = false;
     updatedData[x][y].isRevealed = true;
 
     if (updatedData[x][y].isEmpty) {
-      updatedData = revealEmpty(x, y, updatedData);
+      updatedData = revealEmpty(x, y, updatedData, height, width);
     }
 
     if (getHidden(updatedData).length === mines) {
@@ -182,28 +89,14 @@ const Board = ({ height, width, mines }: BoardProps) => {
     }
 
     setBoardData(updatedData);
+    setStepData((prevState) => [...prevState, updatedData]);
     setMineCount(mines - getFlags(updatedData).length);
   };
 
-  const contextMenu = (e: any) => {
+  const handleContextMenu = (e: any, x: number, y: number) => {
     e.preventDefault();
-    console.log(e);
-    return;
-  };
-
-  const clickMe = (x: number, y: number) => (event: any) => {
-    event.preventDefault();
-    console.log("test");
-  };
-
-  const handleContextMenu = (
-    e: any,
-    x: number,
-    y: number
-  ) /* => (e: any) */ => {
-    e.preventDefault();
-    console.log("Running");
-    let updatedData = [...boardData];
+    // console.log("Running");
+    let updatedData = JSON.parse(JSON.stringify(boardData));
     let mines = mineCount;
 
     // check if already revealed
@@ -232,6 +125,15 @@ const Board = ({ height, width, mines }: BoardProps) => {
     setMineCount(mines);
   };
 
+  const handleUndoClick = () => {
+    let updatedData = JSON.parse(JSON.stringify(stepData));
+    updatedData.pop();
+    // console.log("Board", updatedData[updatedData.length - 1]);
+    // console.log("Update", updatedData);
+    setBoardData(updatedData[updatedData.length - 1]);
+    setStepData(updatedData);
+  };
+
   const renderBoard = (data: any) => {
     return data.map((datarow: any) => {
       return datarow.map((dataitem: any) => {
@@ -257,19 +159,17 @@ const Board = ({ height, width, mines }: BoardProps) => {
   return (
     <div className="board">
       <div className="game-info">
-        <span
-          className="info"
-          onContextMenu={(e) => {
-            e.preventDefault();
-            console.log("first");
-          }}
+        <span className="info">Mines remaining: {mineCount}</span>
+        <h1 className="info">{gameStatus}</h1>
+        <Timer initTime={time} />
+        <Button
+          variant="gradient"
+          gradient={{ from: "indigo", to: "cyan" }}
+          onClick={handleUndoClick}
         >
-          Mines remaining: {mineCount}
-        </span>
-        <h1 className="info" onContextMenu={contextMenu}>
-          {gameStatus}
-        </h1>
-        <Timer />
+          Undo
+        </Button>
+        <Space />
       </div>
       {renderBoard(boardData)}
     </div>
