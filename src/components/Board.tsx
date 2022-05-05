@@ -1,5 +1,7 @@
-import { Button, Space } from "@mantine/core";
+import { Button, Center, Container, Space } from "@mantine/core";
 import React from "react";
+import { useLocation } from "react-router-dom";
+import { useBoards } from "../utils/context";
 import {
   getFlags,
   getHidden,
@@ -8,17 +10,12 @@ import {
   revealEmpty,
 } from "../utils/helpers";
 import Cell from "./Cell";
+import Leaderboard from "./Leaderboard";
 import Timer from "./Timer";
 
-type BoardProps = {
-  height: number;
-  width: number;
-  mines: number;
-};
-
-const Board = ({ height, width, mines }: BoardProps) => {
+const Board = () => {
+  const { height, width, mines } = useBoards();
   const [boardData, setBoardData] = React.useState<any[]>([]);
-  const [gameWon, setGameWon] = React.useState<boolean>();
   const [stepData, setStepData] = React.useState<any[]>([]);
   const [mineCount, setMineCount] = React.useState<number>(mines);
   const [gameStatus, setGameStatus] = React.useState("Game in progress");
@@ -30,23 +27,6 @@ const Board = ({ height, width, mines }: BoardProps) => {
     setBoardData(initStep);
     setStepData((prevState) => [...prevState, initStep]);
   }, []);
-
-  // React.useEffect(() => {
-  //   let steps = JSON.parse(localStorage.getItem("stepHistory")!);
-
-  //   // console.log(steps);
-  //   // console.log(steps.length);
-  // }, [boardData]);
-
-  // React.useEffect(() => {
-  //   console.log(boardData);
-  //   // setStepData([...stepData, boardData]);
-  // }, [boardData]);
-
-  // React.useEffect(() => {
-  //   // localStorage.setItem("stepHistory", JSON.stringify(stepData));
-  //   console.log(stepData);
-  // }, [stepData]);
 
   // reveals the whole board
   const revealBoard = () => {
@@ -95,7 +75,6 @@ const Board = ({ height, width, mines }: BoardProps) => {
 
   const handleContextMenu = (e: any, x: number, y: number) => {
     e.preventDefault();
-    // console.log("Running");
     let updatedData = JSON.parse(JSON.stringify(boardData));
     let mines = mineCount;
 
@@ -130,15 +109,17 @@ const Board = ({ height, width, mines }: BoardProps) => {
     updatedData.pop();
     // console.log("Board", updatedData[updatedData.length - 1]);
     // console.log("Update", updatedData);
-    setBoardData(updatedData[updatedData.length - 1]);
-    setStepData(updatedData);
+    if (updatedData.length > 1) {
+      setBoardData(updatedData[updatedData.length - 1]);
+      setStepData(updatedData);
+    }
   };
 
   const renderBoard = (data: any) => {
     return data.map((datarow: any) => {
       return datarow.map((dataitem: any) => {
         return (
-          <div key={dataitem.x * datarow.length + dataitem.y}>
+          <React.Fragment key={dataitem.x * datarow.length + dataitem.y}>
             <Cell
               onClick={() => handleCellClick(dataitem.x, dataitem.y)}
               onContextMenu={(e: any) =>
@@ -151,7 +132,7 @@ const Board = ({ height, width, mines }: BoardProps) => {
             ) : (
               ""
             )}
-          </div>
+          </React.Fragment>
         );
       });
     });
@@ -162,16 +143,19 @@ const Board = ({ height, width, mines }: BoardProps) => {
         <span className="info">Mines remaining: {mineCount}</span>
         <h1 className="info">{gameStatus}</h1>
         <Timer initTime={time} />
-        <Button
+        {/* <Leaderboard /> */}
+        {/* <Button
           variant="gradient"
           gradient={{ from: "indigo", to: "cyan" }}
           onClick={handleUndoClick}
         >
           Undo
-        </Button>
+        </Button> */}
         <Space />
       </div>
-      {renderBoard(boardData)}
+      <div className={`game-screen game-${height}`}>
+        <div className="game-container">{renderBoard(boardData)}</div>
+      </div>
     </div>
   );
 };

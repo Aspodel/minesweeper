@@ -16,7 +16,11 @@ const Timer = ({ initTime = Date.now() }: TimerProps) => {
     };
   });
 
-  return <div>{formatTime(elapsedTime)}</div>;
+  return (
+    <div>
+      <span style={{ fontSize: 24 }}>⏱</span> {formatTime(elapsedTime)}
+    </div>
+  );
 };
 
 export default React.memo(Timer);

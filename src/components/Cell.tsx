@@ -23,9 +23,6 @@ const Cell = ({ dataItem, onClick, onContextMenu }: CellProps) => {
     (dataItem.isMine ? " is-mine" : "") +
     (dataItem.isFlagged ? " is-flag" : "");
 
-  // console.log(onContextMenu);
-  // console.log(onClick);
-
   const getValue = () => {
     if (!dataItem.isRevealed) {
       return dataItem.isFlagged ? "🚩" : null;

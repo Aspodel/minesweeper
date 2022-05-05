@@ -1,14 +1,17 @@
 import { MantineProvider } from "@mantine/core";
 import React from "react";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Board from "./components/Board";
 import Home from "./components/Home";
+import { BoardsProvider } from "./utils/context";
 
 function App() {
   return (
     <div className="App">
       <MantineProvider
         theme={{
+          loader: "dots",
           // Theme is deeply merged with default theme
           colorScheme: "light",
           fontFamily: "Roboto, sans-serif",
@@ -36,10 +39,17 @@ function App() {
           },
         }}
       >
-        <div className="game">
+        {/* <div className="game">
           <Board height={8} width={8} mines={10} />
-        </div>
-        {/* <Home/> */}
+        </div> */}
+        {/* <Home /> */}
+
+        <BoardsProvider>
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="/game" element={<Board />} />
+          </Routes>
+        </BoardsProvider>
       </MantineProvider>
     </div>
   );
