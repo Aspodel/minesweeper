@@ -30,7 +30,7 @@ const Home = () => {
     e.preventDefault();
     setLoading(true);
     let checkUsernameResult = await checkUsernameExist(username);
-    console.log(checkUsernameResult);
+    // console.log(checkUsernameResult);
 
     if (!checkUsernameResult) {
       let result = await createUser(username);
@@ -44,7 +44,7 @@ const Home = () => {
   const handleDifficultyClick = async (difficulty: DifficultyType) => {
     setLoading(true);
     let user = await getByUsername(username);
-    console.log(user);
+    // console.log(user);
     setCurrentUser(user);
 
     setDifficulty(difficulty);

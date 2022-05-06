@@ -30,7 +30,7 @@ export const computeScore = (
 ) => {
   let score = 0;
 
-  // console.log("init", difficulty, timeSpent, undoCount);
+  console.log("game infor", difficulty, "\n", timeSpent, "\n", undoCount);
 
   // Convert time from ms to seconds
   var ms = timeSpent % 1000;

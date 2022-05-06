@@ -30,7 +30,7 @@ const Board = () => {
   const [isLoading, setLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    console.log("current", currentUser);
+    // console.log("current", currentUser);
     let initStep = initBoardData(height, width, mines);
     setBoardData(initStep);
     setStepData((prevState) => [...prevState, initStep]);
