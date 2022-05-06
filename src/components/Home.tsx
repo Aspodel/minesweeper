@@ -26,7 +26,8 @@ const Home = () => {
   const [modalOpened, setModalOpened] = React.useState<boolean>(false);
   const [isLoading, setLoading] = React.useState<boolean>(false);
 
-  const handleLetsGoClick = async () => {
+  const handleLetsGoClick = async (e: any) => {
+    e.preventDefault();
     setLoading(true);
     let checkUsernameResult = await checkUsernameExist(username);
     console.log(checkUsernameResult);
@@ -91,9 +92,10 @@ const Home = () => {
               variant="gradient"
               gradient={{ from: "indigo", to: "cyan" }}
               sx={{ width: 200, margin: "auto" }}
-              onClick={handleLetsGoClick}
+              onClick={(e: any) => handleLetsGoClick(e)}
+              type="submit"
             >
-              Get's go
+              Get go
             </Button>
           </form>
         </Stack>

@@ -16,7 +16,8 @@ export const getByUsername = async (username: string) => {
 
 export const updateScore = async (currentUser: IUser, newScore: number) => {
   // console.log("I'm API", currentUser.id, "\n", newScore);
-  let score = Math.max(currentUser.highest_score, newScore);
+  let oldScore = currentUser?.highest_score ?? newScore;
+  let score = Math.max(oldScore, newScore);
   const response = await fetch(
     `${baseUrl}/update/${currentUser.id}/highest_score&${score}`,
     {

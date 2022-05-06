@@ -18,9 +18,9 @@ export const formatTime = (time: any) => {
 };
 
 export const checkUsernameExist = async (username: string) => {
-  username = username.trim().toLowerCase();
+  username = username.trim();
   const userList = await getAll();
-  return userList.some((item: any) => item.username.toLowerCase() === username);
+  return userList.some((item: any) => item.username === username);
 };
 
 export const computeScore = (
