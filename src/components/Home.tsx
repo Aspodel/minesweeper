@@ -12,26 +12,40 @@ import {
 } from "@mantine/core";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { createUser, getByUsername, updateScore } from "../api";
 import { checkUsernameExist } from "../utils";
 import { useBoards, useGameInfors } from "../utils/context";
-import { DifficultyType } from "../utils/type";
+import { DifficultyType, IUser } from "../utils/type";
+import LoadingOverlay from "./LoadingOverlay";
 
 const Home = () => {
   let navigate = useNavigate();
-  let { setDifficulty } = useGameInfors();
+  let { currentUser, setDifficulty, setCurrentUser } = useGameInfors();
   const { setHeight, setMines, setWidth } = useBoards();
   const [username, setUsername] = React.useState("");
   const [modalOpened, setModalOpened] = React.useState<boolean>(false);
+  const [isLoading, setLoading] = React.useState<boolean>(false);
 
   const handleLetsGoClick = async () => {
-    setModalOpened(true);
+    setLoading(true);
     let checkUsernameResult = await checkUsernameExist(username);
     console.log(checkUsernameResult);
+
     if (!checkUsernameResult) {
+      let result = await createUser(username);
+      // console.log("clgt", result);
     }
+
+    setLoading(false);
+    setModalOpened(true);
   };
 
   const handleDifficultyClick = async (difficulty: DifficultyType) => {
+    setLoading(true);
+    let user = await getByUsername(username);
+    console.log(user);
+    setCurrentUser(user);
+
     setDifficulty(difficulty);
 
     switch (difficulty) {
@@ -51,11 +65,13 @@ const Home = () => {
         setMines(99);
     }
 
+    setLoading(false);
     navigate("/game");
   };
 
   return (
     <div className="home">
+      {isLoading && <LoadingOverlay />}
       <Container>
         <Stack sx={{ textAlign: "center" }}>
           <Title order={1}>Minesweeper</Title>
@@ -68,7 +84,7 @@ const Home = () => {
               sx={{ width: 500, margin: "auto" }}
               value={username}
               onChange={(event) => setUsername(event.currentTarget.value)}
-            />{" "}
+            />
             <Space h="xl" />
             <Button
               size="lg"
@@ -77,7 +93,7 @@ const Home = () => {
               sx={{ width: 200, margin: "auto" }}
               onClick={handleLetsGoClick}
             >
-              Let's go
+              Get's go
             </Button>
           </form>
         </Stack>

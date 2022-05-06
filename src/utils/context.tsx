@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { DifficultyType, IBoard } from "./type";
+import { DifficultyType, IBoard, IUser } from "./type";
 
 interface IBoardContext extends IBoard {
   setHeight: (height: number) => void;
@@ -34,29 +34,35 @@ export function BoardsProvider({ children }: any) {
 export const useBoards = () => useContext(BoardsContext);
 
 interface IGameInforContext {
-  username: string;
-  setUsername: (username: string) => void;
+  // username: string;
+  // setUsername: (username: string) => void;
+  currentUser: IUser;
+  setCurrentUser: (currentUser: IUser) => void;
   difficulty: DifficultyType;
   setDifficulty: (difficulty: DifficultyType) => void;
   elapsedTime: number;
   setElapsedTime: (elapsedTime: number) => void;
+  undoNumber: number;
+  setUndoNumber: (undoNumber: number) => void;
 }
 
 const defaultGameInfor: IGameInforContext = {
-  username: "",
+  currentUser: {} as IUser,
   difficulty: "easy",
   elapsedTime: 0,
-  setUsername: () => {},
+  undoNumber: 0,
   setDifficulty: () => {},
   setElapsedTime: () => {},
+  setUndoNumber: () => {},
+  setCurrentUser: () => {},
 };
 
 export const GameInforsContext =
   React.createContext<IGameInforContext>(defaultGameInfor);
 
 export function GameInforsProvider({ children }: any) {
-  const [username, setUsername] = React.useState<string>(
-    defaultGameInfor.username
+  const [currentUser, setCurrentUser] = React.useState<IUser>(
+    defaultGameInfor.currentUser
   );
 
   const [difficulty, setDifficulty] = React.useState<DifficultyType>(
@@ -67,15 +73,21 @@ export function GameInforsProvider({ children }: any) {
     defaultGameInfor.elapsedTime
   );
 
+  const [undoNumber, setUndoNumber] = React.useState<number>(
+    defaultGameInfor.undoNumber
+  );
+
   return (
     <GameInforsContext.Provider
       value={{
-        username,
+        currentUser,
         difficulty,
         elapsedTime,
-        setUsername,
+        undoNumber,
+        setCurrentUser,
         setDifficulty,
         setElapsedTime,
+        setUndoNumber,
       }}
     >
       {children}

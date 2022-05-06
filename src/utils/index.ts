@@ -30,10 +30,14 @@ export const computeScore = (
 ) => {
   let score = 0;
 
+  // console.log("init", difficulty, timeSpent, undoCount);
+
   // Convert time from ms to seconds
   var ms = timeSpent % 1000;
   timeSpent = (timeSpent - ms) / 1000;
   var secs = timeSpent % 60;
+
+  // console.log("time", secs);
 
   let levelMaxTime = 300; // The player has to completed the level within 300 seconds
   let levelScore = 1; // The player will be awarded of 1 points per remaining second
@@ -53,11 +57,15 @@ export const computeScore = (
       levelMaxTime = 600;
   }
 
+  // console.log("AFTER Switch", score);
+
   // Compute the final score
   score = Math.max(
     0,
     score + Math.max(0, levelMaxTime - secs) * levelScore - undoCount * 200
   );
+
+  // console.log("FInal score", score);
 
   return score;
 };

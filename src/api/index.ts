@@ -1,4 +1,6 @@
-const baseUrl = "https://minesweeper-data.herokuapp.com/api/";
+import { IUser } from "../utils/type";
+
+const baseUrl = "https://minesweeper-data.herokuapp.com/api";
 
 export const getAll = async () => {
   const response = await fetch(`${baseUrl}/getall`);
@@ -6,9 +8,17 @@ export const getAll = async () => {
   return data;
 };
 
-export const updateScore = async (userId: string, newScore: number) => {
+export const getByUsername = async (username: string) => {
+  const response = await fetch(`${baseUrl}/login/${username}`);
+  const data = await response.json();
+  return data[0];
+};
+
+export const updateScore = async (currentUser: IUser, newScore: number) => {
+  // console.log("I'm API", currentUser.id, "\n", newScore);
+  let score = Math.max(currentUser.highest_score, newScore);
   const response = await fetch(
-    `${baseUrl}/update/${userId}/highscore&${newScore}`,
+    `${baseUrl}/update/${currentUser.id}/highest_score&${score}`,
     {
       method: "POST",
       // body: JSON.stringify({ highest_score: newScore }),
@@ -19,12 +29,15 @@ export const updateScore = async (userId: string, newScore: number) => {
   return data;
 };
 
-export const createUser = async (username: string, playerName: string) => {
+export const createUser = async (
+  username: string /* , playerName: string */
+) => {
   const response = await fetch(`${baseUrl}/create`, {
+    headers: { "Content-Type": "application/json" },
     method: "POST",
     body: JSON.stringify({
       username: username,
-      name: playerName,
+      name: username,
     }),
   });
 

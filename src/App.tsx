@@ -4,29 +4,17 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Board from "./components/Board";
 import Home from "./components/Home";
-import { BoardsProvider } from "./utils/context";
+import Leaderboard from "./components/Leaderboard";
+import { BoardsProvider, GameInforsProvider } from "./utils/context";
 
 function App() {
   return (
     <div className="App">
       <MantineProvider
         theme={{
-          loader: "dots",
           // Theme is deeply merged with default theme
           colorScheme: "light",
           fontFamily: "Roboto, sans-serif",
-          colors: {
-            // Add your color
-            "deep-blue": ["#E9EDFC", "#C1CCF6", "#99ABF0" /* ... */],
-            // or replace default theme color
-            blue: ["#E9EDFC", "#C1CCF6", "#99ABF0" /* ... */],
-          },
-
-          shadows: {
-            // other shadows (xs, sm, lg) will be merged from default theme
-            md: "1px 1px 3px rgba(0,0,0,.25)",
-            xl: "5px 5px 3px rgba(0,0,0,.25)",
-          },
 
           headings: {
             fontFamily: "Roboto, sans-serif",
@@ -39,17 +27,15 @@ function App() {
           },
         }}
       >
-        {/* <div className="game">
-          <Board height={8} width={8} mines={10} />
-        </div> */}
-        {/* <Home /> */}
-
-        <BoardsProvider>
-          <Routes>
-            <Route index element={<Home />} />
-            <Route path="/game" element={<Board />} />
-          </Routes>
-        </BoardsProvider>
+        <GameInforsProvider>
+          <BoardsProvider>
+            <Routes>
+              <Route index element={<Home />} />
+              <Route path="/game" element={<Board />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+            </Routes>
+          </BoardsProvider>
+        </GameInforsProvider>
       </MantineProvider>
     </div>
   );

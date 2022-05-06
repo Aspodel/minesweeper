@@ -3,7 +3,7 @@ import { tuple } from ".";
 export interface IUser {
   id: string;
   username: string;
-  name: string;
+  name?: string;
   highest_score: number;
 }
 
